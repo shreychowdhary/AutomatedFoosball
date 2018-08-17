@@ -9,12 +9,12 @@ import time
 # define the lower and upper boundaries of the "blue"
 # ball in the HSV color space, then initialize the
 # list of tracked points
-blueLower = (108, 50, 44)
-blueUpper = (160, 133, 102)
+yellowLower = (11, 52, 211)
+yellowUpper = (37, 136, 255)
 pts = deque(maxlen=64)
  
 
-vs = VideoStream(src=1).start()
+vs = VideoStream(src=0).start()
  
  
 # allow the camera or video file to warm up
@@ -38,7 +38,7 @@ while True:
     # construct a mask for the color "green", then perform
     # a series of dilations and erosions to remove any small
     # blobs left in the mask
-    mask = cv2.inRange(hsv, blueLower, blueUpper)
+    mask = cv2.inRange(hsv, yellowLower, yellowUpper)
     mask = cv2.erode(mask, None, iterations=2)
     mask = cv2.dilate(mask, None, iterations=2)
 
