@@ -5,6 +5,7 @@ import argparse
 import cv2
 import imutils
 import time
+import positional
 
 def main(args):
     # define the lower and upper boundaries of the "blue"
@@ -14,10 +15,13 @@ def main(args):
     yellowUpper = (37, 136, 255)
 
     vs = cv2.VideoCapture(0)
-     
+    vs.set(cv2.CAP_PROP_FRAME_WIDTH, 1024)
+    vs.set(cv2.CAP_PROP_FRAME_HEIGHT, 576)
      
     # allow the camera or video file to warm up
     time.sleep(2.0)
+    
+    ball_pos = None
     # keep looping
     while True:
         # grab the current frame
@@ -30,7 +34,8 @@ def main(args):
      
         # resize the frame, blur it, and convert it to the HSV
         # color spaceme = imutils.resize(frame, width=600)
-        frame = imutils.resize(frame, width=600)
+        #frame = imutils.resize(frame, width=600)
+        frame = frame[40:500, 100:900]
         blurred = cv2.GaussianBlur(frame, (11, 11), 0)
         hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
      
@@ -38,8 +43,8 @@ def main(args):
         # a series of dilations and erosions to remove any small
         # blobs left in the mask
         mask = cv2.inRange(hsv, yellowLower, yellowUpper)
-        mask = cv2.erode(mask, None, iterations=2)
-        mask = cv2.dilate(mask, None, iterations=2)
+        mask = cv2.erode(mask, None, iterations=1)
+        mask = cv2.dilate(mask, None, iterations=1)
 
         
         # find contours in the mask and initialize the current
@@ -62,9 +67,9 @@ def main(args):
             # draw the circle and centroid on the frame,
             # then update the list of tracked points
             cv2.circle(frame, center, 5, (0, 0, 255), -1)
-            print(center)
-        else:
-            print("None")
+            #rescale back to calibration 1080p
+            ball_pos = positional.get_3d_point(center)
+            #print(ball_pos)
         if args.show:
             cv2.imshow("Frame", frame)
         
@@ -78,7 +83,6 @@ def main(args):
      
     # close all windows
     cv2.destroyAllWindows()
-    f.close()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
